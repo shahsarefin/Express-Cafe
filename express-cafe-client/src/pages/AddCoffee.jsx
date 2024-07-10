@@ -1,7 +1,7 @@
 import React from 'react';
 
 const AddCoffee = () => {
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const form = event.target;
     const name = form.name.value;
@@ -12,6 +12,29 @@ const AddCoffee = () => {
     const newCoffee = { name, quantity, details, photo };
 
     console.log('Coffee Data:', newCoffee);
+
+    // Send the new coffee data to the server
+    try {
+      // Send the data to the server using a POST request
+      const response = await fetch('http://localhost:5001/coffee', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newCoffee), // Convert the coffee data object to a JSON string
+      });
+
+      // Check if the request was successful
+      if (response.ok) {
+        alert('Coffee added successfully'); // Display a success message
+        form.reset(); // Reset the form fields
+      } else {
+        alert('Failed to add coffee'); // Display an error message if the request failed
+      }
+    } catch (error) {
+      console.error('Error adding coffee:', error);
+      alert('An error occurred'); // Display an error message if an exception was caught
+    }
   };
 
   return (
@@ -58,7 +81,7 @@ const AddCoffee = () => {
             <span className="label-text">Photo URL</span>
           </label>
           <input
-            type="text"
+            type="url"
             id="photo"
             name="photo"
             className="input input-bordered w-full"
