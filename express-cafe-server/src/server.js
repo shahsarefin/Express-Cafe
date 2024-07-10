@@ -1,55 +1,65 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient } = require('mongodb');
 
 dotenv.config();
 
 const app = express();
 
-// Middleware
+// Middleware to enable CORS and parse JSON requests
 app.use(cors());
 app.use(express.json());
 
-// MongoDB Username and Password from .env file
-const username = process.env.MONGO_USERNAME;
-const password = process.env.MONGO_PASSWORD;
+// MongoDB connection URI from environment variables
+const uri = process.env.MONGO_URI;
+if (!uri) {
+  throw new Error('MONGO_URI is not defined in the environment variables.');
+}
 
-// Log MongoDB Username and Password to console to confirm it works
-console.log(username, password);
-
-
-// Connection URI
-const uri = `mongodb+srv://${username}:${password}@cluster0.ypafhvm.mongodb.net/?retryWrites=true&w=majority`;
-
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
+const client = new MongoClient(uri);
 
 async function run() {
   try {
-    // Connect the client to the server (optional starting in v4.7)
+    // Connect to the MongoDB server
     await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
+    console.log('MongoDB connected');
+
+    // Specify the database to use
+    const database = client.db('express-cafe-DB'); 
+    // Specify the collection to use within the database
+    const coffeesCollection = database.collection('coffees');
+
+    // Add Coffee route to receive and save form data
+    app.post('/coffee', async (req, res) => {
+      const { name, quantity, details, photo } = req.body;
+      console.log('Received coffee data:', { name, quantity, details, photo });
+
+      // Create a coffee object to insert
+      const coffee = { name, quantity, details, photo };
+
+      try {
+        // Insert the coffee object into the MongoDB collection
+        const result = await coffeesCollection.insertOne(coffee);
+        console.log(`New coffee inserted with the following id: ${result.insertedId}`);
+        res.status(201).json(result); // Respond with the result of the insertion
+      } catch (error) {
+        console.error('Error inserting coffee:', error);
+        res.status(500).json({ message: 'Failed to save coffee data' }); // Respond with an error message
+      }
+    });
+
+    // Sample route to verify the server is running
+    app.get('/', (req, res) => {
+      res.send('Express Cafe API');
+    });
+
+    const PORT = process.env.PORT || 5001;
+    app.listen(PORT, () => console.log(`Express Cafe Server running on port ${PORT}`));
+  } catch (err) {
+    console.error(err);
   }
 }
+
+// Run the MongoDB connection function
 run().catch(console.dir);
-
-// Sample route
-app.get('/', (req, res) => {
-  res.send('Express Cafe API');
-});
-
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => console.log(`Express Cafe Server running on port ${PORT}`));
