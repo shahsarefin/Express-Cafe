@@ -10,6 +10,7 @@ import './index.css';
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Router>
+      <Navbar />
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/add-coffee" element={<AddCoffee />} />
