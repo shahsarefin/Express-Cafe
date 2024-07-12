@@ -1,11 +1,12 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb'); // Ensure ObjectId is imported
 
 dotenv.config();
 
 const app = express();
+const port = process.env.PORT || 5001;
 
 // Middleware to enable CORS and parse JSON requests
 app.use(cors());
@@ -21,24 +22,20 @@ const client = new MongoClient(uri);
 
 async function run() {
   try {
-    // Connect to the MongoDB server
     await client.connect();
     console.log('MongoDB connected');
 
-    // Specify the database and collection to use
     const database = client.db('express-cafe-DB'); 
     const coffeesCollection = database.collection('coffees');
 
-    // get the client data and POST it to database
+    // Add Coffee route to receive data from client form
     app.post('/coffee', async (req, res) => {
       const { name, quantity, details, photo } = req.body;
       console.log('Received coffee data:', { name, quantity, details, photo });
 
-      // Create a coffee object from the received data
       const coffee = { name, quantity, details, photo };
 
       try {
-        // Insert the coffee object into the MongoDB collection
         const result = await coffeesCollection.insertOne(coffee);
         console.log(`New coffee inserted with the following id: ${result.insertedId}`);
         res.status(201).json(result); // successful http response
@@ -48,7 +45,7 @@ async function run() {
       }
     });
 
-    // GET all Coffees from the database and return them as JSON response to the server
+    // Get all Coffees from the MongoDB collection
     app.get('/coffees', async (req, res) => {
       try {
         const cursor = coffeesCollection.find();
@@ -60,13 +57,31 @@ async function run() {
       }
     });
 
-    // verify the server is running
+    // Delete Coffee route
+    app.delete('/coffee/:id', async (req, res) => {
+      const coffeeId = req.params.id;
+      console.log(`Attempting to delete coffee with id: ${coffeeId}`);
+      try {
+        const result = await coffeesCollection.deleteOne({ _id: new ObjectId(coffeeId) });
+        if (result.deletedCount === 1) {
+          console.log(`Coffee with id ${coffeeId} deleted`);
+          res.status(200).json({ message: 'Coffee deleted successfully' });
+        } else {
+          console.log(`No coffee found with id ${coffeeId}`);
+          res.status(404).json({ message: 'Coffee not found' });
+        }
+      } catch (error) {
+        console.error('Error deleting coffee:', error);
+        res.status(500).json({ message: 'Failed to delete coffee' }); // error http response
+      }
+    });
+
+    // Sample route to verify the server is running
     app.get('/', (req, res) => {
       res.send('Express Cafe API');
     });
 
-    const PORT = process.env.PORT || 5001;
-    app.listen(PORT, () => console.log(`Express Cafe Server running on port ${PORT}`));
+    app.listen(port, () => console.log(`Express Cafe Server running on port ${port}`));
   } catch (err) {
     console.error(err);
   } finally {
