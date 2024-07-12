@@ -57,6 +57,56 @@ async function run() {
       }
     });
 
+    // Get a single Coffee by ID from the MongoDB collection
+    app.get('/coffee/:id', async (req, res) => {
+      const coffeeId = req.params.id;
+      console.log(`Fetching coffee with id: ${coffeeId}`);
+      try {
+        const coffee = await coffeesCollection.findOne({ _id: new ObjectId(coffeeId) });
+        if (coffee) {
+          res.status(200).json(coffee); // successful http response
+        } else {
+          console.log(`No coffee found with id ${coffeeId}`);
+          res.status(404).json({ message: 'Coffee not found' }); // not found http response
+        }
+      } catch (error) {
+        console.error('Error fetching coffee:', error);
+        res.status(500).json({ message: 'Failed to fetch coffee' }); // error http response
+      }
+    });
+
+
+    // Update Coffee route
+    app.put('/coffee/:id', async (req, res) => {
+      const coffeeId = req.params.id;
+      const { name, quantity, details, photo } = req.body;
+      console.log(`Attempting to update coffee with id: ${coffeeId}`);
+
+      const updatedCoffee = {
+        name: name,
+        quantity: quantity,
+        details: details,
+        photo: photo
+      };
+
+      try {
+        const result = await coffeesCollection.updateOne(
+          { _id: new ObjectId(coffeeId) },
+          { $set: updatedCoffee }
+        );
+        if (result.modifiedCount === 1) {
+          console.log(`Coffee with id ${coffeeId} updated`);
+          res.status(200).json({ message: 'Coffee updated successfully' });
+        } else {
+          console.log(`No coffee found with id ${coffeeId}`);
+          res.status(404).json({ message: 'Coffee not found' });
+        }
+      } catch (error) {
+        console.error('Error updating coffee:', error);
+        res.status(500).json({ message: 'Failed to update coffee' }); // error http response
+      }
+    });
+
     // Delete Coffee route
     app.delete('/coffee/:id', async (req, res) => {
       const coffeeId = req.params.id;
