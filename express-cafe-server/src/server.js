@@ -25,31 +25,42 @@ async function run() {
     await client.connect();
     console.log('MongoDB connected');
 
-    // Specify the database to use
+    // Specify the database and collection to use
     const database = client.db('express-cafe-DB'); 
-    // Specify the collection to use within the database
     const coffeesCollection = database.collection('coffees');
 
-    // Add Coffee route to receive and save form data
+    // get the client data and POST it to database
     app.post('/coffee', async (req, res) => {
       const { name, quantity, details, photo } = req.body;
       console.log('Received coffee data:', { name, quantity, details, photo });
 
-      // Create a coffee object to insert
+      // Create a coffee object from the received data
       const coffee = { name, quantity, details, photo };
 
       try {
         // Insert the coffee object into the MongoDB collection
         const result = await coffeesCollection.insertOne(coffee);
         console.log(`New coffee inserted with the following id: ${result.insertedId}`);
-        res.status(201).json(result); // Respond with the result of the insertion
+        res.status(201).json(result); // successful http response
       } catch (error) {
         console.error('Error inserting coffee:', error);
-        res.status(500).json({ message: 'Failed to save coffee data' }); // Respond with an error message
+        res.status(500).json({ message: 'Failed to save coffee data' }); // error http response
       }
     });
 
-    // Sample route to verify the server is running
+    // GET all Coffees from the database and return them as JSON response to the server
+    app.get('/coffees', async (req, res) => {
+      try {
+        const cursor = coffeesCollection.find();
+        const coffees = await cursor.toArray();
+        res.status(200).json(coffees); // successful http response
+      } catch (error) {
+        console.error('Error fetching coffees:', error);
+        res.status(500).json({ message: 'Failed to fetch coffee data' }); // error http response
+      }
+    });
+
+    // verify the server is running
     app.get('/', (req, res) => {
       res.send('Express Cafe API');
     });
@@ -58,6 +69,13 @@ async function run() {
     app.listen(PORT, () => console.log(`Express Cafe Server running on port ${PORT}`));
   } catch (err) {
     console.error(err);
+  } finally {
+    // Close the MongoDB connection when the process ends
+    process.on('SIGINT', async () => {
+      await client.close();
+      console.log('MongoDB connection closed');
+      process.exit(0);
+    });
   }
 }
 
