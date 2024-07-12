@@ -7,7 +7,7 @@ import AddCoffee from './pages/AddCoffee';
 import UpdateCoffee from './pages/UpdateCoffee';
 import './index.css';
 
-// Loader function to fetch coffee data
+// Loader function to fetch coffee data from the server 
 const coffeeLoader = async () => {
   const response = await fetch('http://localhost:5001/coffees');
   if (!response.ok) {
@@ -16,13 +16,13 @@ const coffeeLoader = async () => {
   return response.json();
 };
 
-// Define the routes with the loader
+// routes
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
       <Route index element={<Home />} loader={coffeeLoader} />
       <Route path="add-coffee" element={<AddCoffee />} />
-      <Route path="update-coffee" element={<UpdateCoffee />} />
+      <Route path="update-coffee/:id" element={<UpdateCoffee />} />
     </Route>
   )
 );
