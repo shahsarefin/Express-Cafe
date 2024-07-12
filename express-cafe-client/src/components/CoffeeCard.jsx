@@ -11,7 +11,7 @@ const CoffeeCard = ({ coffee }) => {
           method: 'DELETE',
         });
         if (response.ok) {
-          window.location.reload(); // Refresh the page to update the coffee list
+          window.location.reload(); 
         } else {
           console.error('Failed to delete coffee');
         }
