@@ -3,6 +3,24 @@ import { Link } from 'react-router-dom';
 import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
 
 const CoffeeCard = ({ coffee }) => {
+  const handleDelete = async () => {
+    const confirmDelete = window.confirm(`Are you sure you want to delete ${coffee.name}?`);
+    if (confirmDelete) {
+      try {
+        const response = await fetch(`http://localhost:5001/coffee/${coffee._id}`, {
+          method: 'DELETE',
+        });
+        if (response.ok) {
+          window.location.reload(); // Refresh the page to update the coffee list
+        } else {
+          console.error('Failed to delete coffee');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+  };
+
   return (
     <div className="card bg-base-100 shadow-xl flex">
       <figure className="w-1/3">
@@ -19,7 +37,7 @@ const CoffeeCard = ({ coffee }) => {
           <Link to={`/update-coffee/${coffee._id}`} className="btn btn-warning">
             <FaEdit />
           </Link>
-          <button className="btn btn-error">
+          <button className="btn btn-error" onClick={handleDelete}>
             <FaTrash />
           </button>
         </div>
