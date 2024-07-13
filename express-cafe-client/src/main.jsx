@@ -5,6 +5,8 @@ import App from './App';
 import Home from './pages/Home';
 import AddCoffee from './pages/AddCoffee';
 import UpdateCoffee from './pages/UpdateCoffee';
+import SignUp from './pages/SignUp';
+import SignIn from './pages/SignIn';
 import './index.css';
 
 // Loader function to fetch coffee data from the server 
@@ -23,6 +25,8 @@ const router = createBrowserRouter(
       <Route index element={<Home />} loader={coffeeLoader} />
       <Route path="add-coffee" element={<AddCoffee />} />
       <Route path="update-coffee/:id" element={<UpdateCoffee />} />
+      <Route path="sign-up" element={<SignUp />} />
+      <Route path="sign-in" element={<SignIn />} />
     </Route>
   )
 );
