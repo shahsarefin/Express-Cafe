@@ -8,6 +8,7 @@ import UpdateCoffee from './pages/UpdateCoffee';
 import SignUp from './pages/SignUp';
 import SignIn from './pages/SignIn';
 import './index.css';
+import { AuthProvider } from './provider/AuthProvider';
 
 // Loader function to fetch coffee data from the server 
 const coffeeLoader = async () => {
@@ -33,6 +34,8 @@ const router = createBrowserRouter(
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </React.StrictMode>
 );
