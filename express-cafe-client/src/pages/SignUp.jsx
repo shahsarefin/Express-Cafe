@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import { auth } from '../firebase/firebase.config';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../provider/AuthProvider';
 
 const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-
+  const { currentUser } = useAuth();
+  
   const handleSignUp = async (e) => {
     e.preventDefault();
     try {
