@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { auth } from '../firebase/firebase.config';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../provider/AuthProvider';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
 
   const handleSignIn = async (e) => {
     e.preventDefault();
@@ -25,6 +27,7 @@ const SignIn = () => {
         <h1 className="text-3xl font-bold text-center text-brown-800">Welcome to Express Cafe</h1>
         <h2 className="text-xl font-semibold text-center text-brown-600">Sign In to Your Account</h2>
         {error && <p className="text-red-500">{error}</p>}
+        {currentUser && <p className="text-green-500">You are already logged in as {currentUser.email}</p>}
         <form onSubmit={handleSignIn} className="space-y-4">
           <div className="form-control">
             <label className="label">
