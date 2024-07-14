@@ -27,6 +27,7 @@ async function run() {
 
     const database = client.db('express-cafe-DB'); 
     const coffeesCollection = database.collection('coffees');
+    const usersCollection = database.collection('users');
 
     // Add Coffee route to receive data from client form
     app.post('/coffee', async (req, res) => {
@@ -75,7 +76,6 @@ async function run() {
       }
     });
 
-
     // Update Coffee route
     app.put('/coffee/:id', async (req, res) => {
       const coffeeId = req.params.id;
@@ -123,6 +123,23 @@ async function run() {
       } catch (error) {
         console.error('Error deleting coffee:', error);
         res.status(500).json({ message: 'Failed to delete coffee' }); // error http response
+      }
+    });
+
+    // Register User route to save user data in MongoDB
+    app.post('/register', async (req, res) => {
+      const { uid, email } = req.body;
+      console.log('Received user data:', { uid, email });
+
+      const user = { uid, email };
+
+      try {
+        const result = await usersCollection.insertOne(user);
+        console.log(`New user inserted with the following id: ${result.insertedId}`);
+        res.status(201).json(result); // successful http response
+      } catch (error) {
+        console.error('Error inserting user:', error);
+        res.status(500).json({ message: 'Failed to save user data' }); // error http response
       }
     });
 
