@@ -10,11 +10,25 @@ const SignUp = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  
+
   const handleSignUp = async (e) => {
     e.preventDefault();
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Send user information to the server to store in MongoDB
+      await fetch('http://localhost:5001/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          uid: user.uid,
+          email: user.email,
+        }),
+      });
+
       navigate('/');
     } catch (error) {
       setError(error.message);
