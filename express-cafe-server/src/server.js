@@ -143,6 +143,17 @@ async function run() {
       }
     });
 
+    // Get all users from the MongoDB collection
+    app.get('/users', async (req, res) => {
+      try {
+        const users = await usersCollection.find().toArray();
+        res.status(200).json(users); // successful http response
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({ message: 'Failed to fetch users' }); // error http response
+      }
+    });
+
     // Sample route to verify the server is running
     app.get('/', (req, res) => {
       res.send('Express Cafe API');
