@@ -16,6 +16,7 @@ const Navbar = () => {
         <Link to="/" className="text-white text-lg font-bold">Express Cafe</Link>
         <div>
           <Link to="/add-coffee" className="text-white mx-2">Add Coffee</Link>
+          <Link to="/users" className="text-white mx-2">Users</Link>
           {!currentUser ? (
             <>
               <Link to="/sign-up" className="text-white mx-2">Sign Up</Link>
